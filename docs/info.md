@@ -8,7 +8,7 @@ The design is organized into three functional blocks:
 
 - `keypad_scanner`: scans the keypad matrix by driving one row at a time on `uio_out[3:0]` and reading the column inputs on `uio_in[7:4]`.
 - Lock logic: stores the current 4-bit password, accepts keypad code entries, checks the entered code, counts failed attempts, and runs a temporary lockout timer.
-- Output/status register: reports unlock, lockout, failed-attempt count, and password/debug bits on `uo_out[7:0]`.
+- Output/status register: drives an active-high 7-segment display on `uo_out[6:0]` and a decimal-point lockout indicator on `uo_out[7]`.
 
 ![Block diagram](images/block_diagram.png)
 
@@ -27,18 +27,18 @@ The keypad rows are active-low scan outputs. The columns are active-low inputs, 
 
 During normal operation, keys `0` through `9` and `A` through `D` load the current 4-bit code. The `*` key stores the current code as the password. The `#` key checks the current code against the stored password.
 
-When the entered code matches the stored password, `uo_out[0]` is asserted as `unlocked`. A wrong code increments the failed-attempt counter on `uo_out[3:2]`. After three wrong attempts, `uo_out[1]` is asserted as `locked_out` and an internal temporary lockout timer is loaded.
+When the entered code matches the stored password, the lock enters its internal unlocked state. A wrong code increments the internal failed-attempt counter. After three wrong attempts, temporary lockout asserts, `uo_out[7]` lights the decimal point, and an internal temporary lockout timer is loaded.
 
 While temporary lockout is active, normal keypad lock updates are ignored. Code-entry keys do not change the entered code, the `*` key cannot change the password, and the `#` key cannot unlock the design or add more failed attempts. When the internal lockout timer expires, `locked_out` clears, failed attempts reset to 0, and `unlocked` remains 0 so the user can try entering the password again. Active-low reset clears the timer and lockout state immediately.
 
-The status output format is:
+The display output format is:
 
 | Output bits | Function |
 |---|---|
-| `uo_out[0]` | `unlocked` |
-| `uo_out[1]` | `locked_out` |
-| `uo_out[3:2]` | failed-attempt count |
-| `uo_out[7:4]` | stored password/debug bits |
+| `uo_out[6:0]` | active-high 7-segment pattern for the current entered hex digit |
+| `uo_out[7]` | decimal point, high during temporary lockout |
+
+The segment bit order is `uo_out[0] = a`, `uo_out[1] = b`, `uo_out[2] = c`, `uo_out[3] = d`, `uo_out[4] = e`, `uo_out[5] = f`, and `uo_out[6] = g`. The active-high hex patterns are `0=0x3f`, `1=0x06`, `2=0x5b`, `3=0x4f`, `4=0x66`, `5=0x6d`, `6=0x7d`, `7=0x07`, `8=0x7f`, `9=0x6f`, `A=0x77`, `B=0x7c`, `C=0x39`, `D=0x5e`, `E=0x79`, and `F=0x71`.
 
 ### Pinout interface
 
@@ -50,7 +50,7 @@ The following table summarizes the TinyTapeout interface used by this design.
 | `rst_n` | input | Active-low reset; clears password, entered code, attempts, unlock, lockout state, and lockout timer |
 | `ena` | input | Design enable for normal keypad-driven lock updates |
 | `ui[7:0]` | input | Unused/reserved in this version |
-| `uo[7:0]` | output | Lock status: `unlocked`, `locked_out`, failed attempts, and password/debug bits |
+| `uo[7:0]` | output | 7-segment display plus decimal-point lockout indicator |
 | `uio[7:0]` | bidirectional | 4x4 keypad interface: rows on `uio[3:0]`, columns on `uio[7:4]` |
 
 ## How to test
@@ -74,10 +74,11 @@ The Cocotb test verifies:
 - `uio_oe = 8'b0000_1111`
 - Password storage using `*`
 - Password checking using `#`
-- Unlock behavior with the correct password
+- 7-segment output patterns on `uo_out[6:0]`
+- Decimal-point lockout indication on `uo_out[7]`
 - Temporary lockout behavior after three wrong attempts
-- Ignored password checks, ignored password changes, and unchanged attempt count during temporary lockout
-- Lockout timeout behavior, including failed-attempt reset and successful unlock after the timer expires
+- Ignored keypad updates during temporary lockout
+- Lockout timeout behavior and a successful password check after the timer expires
 
 Optional local visual inspection:
 

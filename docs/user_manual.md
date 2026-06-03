@@ -8,12 +8,26 @@ When the design is not locked out, keys `0` through `9` and `A` through `D` sele
 
 ## Status outputs
 
-| Output bit | Meaning |
+`uo_out[6:0]` drives an active-high 7-segment display for the current entered hex digit. The bit order is `uo_out[0] = a`, `uo_out[1] = b`, `uo_out[2] = c`, `uo_out[3] = d`, `uo_out[4] = e`, `uo_out[5] = f`, and `uo_out[6] = g`. `uo_out[7]` drives the decimal point and is high during temporary lockout.
+
+| Hex | `uo_out[6:0]` |
 |---|---|
-| `uo_out[0]` | `unlocked` |
-| `uo_out[1]` | `locked_out` |
-| `uo_out[3:2]` | failed-attempt count |
-| `uo_out[7:4]` | stored password/debug bits |
+| 0 | `0x3f` |
+| 1 | `0x06` |
+| 2 | `0x5b` |
+| 3 | `0x4f` |
+| 4 | `0x66` |
+| 5 | `0x6d` |
+| 6 | `0x7d` |
+| 7 | `0x07` |
+| 8 | `0x7f` |
+| 9 | `0x6f` |
+| A | `0x77` |
+| B | `0x7c` |
+| C | `0x39` |
+| D | `0x5e` |
+| E | `0x79` |
+| F | `0x71` |
 
 ## Temporary lockout
 

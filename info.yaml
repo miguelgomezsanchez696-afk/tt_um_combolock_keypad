@@ -11,6 +11,7 @@ project:
   source_files:
     - "tt_um_combolock.v"
     - "keypad_scanner.v"
+    - "seven_seg_decoder.v"
 
 pinout:
   ui[0]: "unused"
@@ -22,14 +23,14 @@ pinout:
   ui[6]: "unused"
   ui[7]: "unused"
 
-  uo[0]: "unlocked"
-  uo[1]: "locked_out"
-  uo[2]: "failed_attempts[0]"
-  uo[3]: "failed_attempts[1]"
-  uo[4]: "password_debug[0]"
-  uo[5]: "password_debug[1]"
-  uo[6]: "password_debug[2]"
-  uo[7]: "password_debug[3]"
+  uo[0]: "seven_segment_a"
+  uo[1]: "seven_segment_b"
+  uo[2]: "seven_segment_c"
+  uo[3]: "seven_segment_d"
+  uo[4]: "seven_segment_e"
+  uo[5]: "seven_segment_f"
+  uo[6]: "seven_segment_g"
+  uo[7]: "decimal_point_lockout"
 
   uio[0]: "keypad_row_0"
   uio[1]: "keypad_row_1"

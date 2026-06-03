@@ -2,7 +2,8 @@
   "DESIGN_NAME": "tt_um_combolock",
   "VERILOG_FILES": [
     "dir::src/tt_um_combolock.v",
-    "dir::src/keypad_scanner.v"
+    "dir::src/keypad_scanner.v",
+    "dir::src/seven_seg_decoder.v"
   ],
   "CLOCK_PORT": "clk",
   "CLOCK_PERIOD": 25,

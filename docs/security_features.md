@@ -2,7 +2,7 @@
 
 ## Password register
 
-The design stores one 4-bit password in an internal flip-flop register. The stored password is exposed on `uo_out[7:4]` for bring-up and demo visibility.
+The design stores one 4-bit password in an internal flip-flop register. The stored password is not exposed directly on `uo_out`; the outputs drive a 7-segment display for the current entered code plus a decimal-point lockout indicator.
 
 ## Keypad entry
 
@@ -16,7 +16,7 @@ Each wrong `#` check increments the failed-attempt counter. After the third wron
 
 Lockout is temporary. While `locked_out` is active, code entry, password checks, and password changes are ignored, `unlocked` is held low, and failed attempts do not keep incrementing. An internal lockout timer counts clock cycles. When the timer expires, `locked_out` clears and failed attempts reset to 0.
 
-The default RTL parameter is `LOCKOUT_CYCLES=1024`. The Cocotb testbench overrides it to 8 cycles for faster simulation.
+The default RTL parameter is `LOCKOUT_CYCLES=1024`. The Cocotb testbench uses the synthesized default instead of an RTL-only parameter override so RTL and gate-level simulations exercise the same timeout.
 
 ## Reset behavior
 

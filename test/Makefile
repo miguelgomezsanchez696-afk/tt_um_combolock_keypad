@@ -6,7 +6,7 @@ SIM ?= icarus
 FST ?= -fst # Use more efficient FST format
 TOPLEVEL_LANG ?= verilog
 SRC_DIR = $(PWD)/../src
-PROJECT_SOURCES = tt_um_combolock.v keypad_scanner.v
+PROJECT_SOURCES = tt_um_combolock.v keypad_scanner.v seven_seg_decoder.v
 
 ifneq ($(GATES),yes)
 

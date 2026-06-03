@@ -6,7 +6,7 @@ Run the TinyTapeout Cocotb testbench from the repository root:
 make -C test
 ```
 
-The RTL testbench instantiates `tt_um_combolock` with `LOCKOUT_CYCLES=8` so the temporary lockout timer can be verified quickly in simulation. The synthesized default remains `LOCKOUT_CYCLES=1024`.
+The RTL testbench instantiates `tt_um_combolock` without a parameter override, matching the synthesized gate-level netlist. The Cocotb test waits for the default `LOCKOUT_CYCLES=1024` timeout through the external decimal-point lockout indicator.
 
 The Cocotb test covers:
 
@@ -14,11 +14,10 @@ The Cocotb test covers:
 - Keypad row scanning and key mapping
 - Password storage using `*`
 - Password verification using `#`
-- Correct-password unlock behavior
+- 7-segment output patterns on `uo_out[6:0]`
+- Decimal-point lockout indication on `uo_out[7]`
 - Three failed attempts entering temporary lockout
-- Ignored password changes during temporary lockout
-- Ignored password checks during temporary lockout
-- Stable failed-attempt count while locked out
-- Lockout timeout clearing `locked_out` and resetting failed attempts
-- Successful unlock after the timeout
+- Ignored keypad updates during temporary lockout
+- Lockout timeout clearing the decimal-point indicator
+- Successful password check after the timeout
 - Reset while locked out
