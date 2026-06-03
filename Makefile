@@ -11,5 +11,3 @@ test:
 
 clean:
 	$(MAKE) -C test clean || true
-	rm -f test/*.vcd test/*.fst test/*.xml test/results.xml
-
