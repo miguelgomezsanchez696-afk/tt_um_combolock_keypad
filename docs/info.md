@@ -1,5 +1,19 @@
 ## How it works
 
+This project implements a 4-bit digital combination lock using a 4x4 matrix keypad as the user input interface.
+
+The design is based on a TinyTapeout-style Combination Lock. The main functional modification is that the password is no longer entered using DIP switches. Instead, a typical Arduino-style 4x4 matrix keypad is scanned through the bidirectional `uio` pins.
+
+The keypad rows are driven by the ASIC through `uio_out[3:0]`, and the keypad columns are read by the ASIC through `uio_in[7:4]`. The output enable value is `uio_oe = 8'b0000_1111`, so the lower four `uio` pins are outputs and the upper four `uio` pins are inputs.
+
+Keypad layout:
+
+```text
+Row 0: 1, 2, 3, A
+Row 1: 4, 5, 6, B
+Row 2: 7, 8, 9, C
+Row 3: *, 0, #, D## How it works
+
 This project implements a 4-bit combination lock controlled by a 4x4 matrix keypad. The ASIC drives the four keypad rows on `uio_out[3:0]` as active-low scan outputs and reads the four keypad columns on `uio_in[7:4]` as active-low inputs. `uio_oe` is fixed at `8'b0000_1111`, making `uio[3:0]` outputs and `uio[7:4]` inputs.
 
 The keypad layout is:

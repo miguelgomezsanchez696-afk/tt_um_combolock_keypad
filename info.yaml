@@ -3,9 +3,52 @@ project:
   title:        "4-bit Combination Lock with 4x4 Matrix Keypad"
   author:       "MiguelGomez"
   discord:      ""      # Your discord username, for communication and automatically assigning you a Tapeout role (optional)
-  description:  "A TinyTapeout-style 4-bit combination lock using a 4x4 matrix keypad instead of DIP switches."
-  language:     "Verilog"
-  clock_hz:     40000000
+  description:  "A TinyTapeout-style 4-bit combination lock using a 4x4 matrix keypad instead of DIP # Tiny Tapeout project information
+project:
+  title: "4-bit Combination Lock with 4x4 Matrix Keypad"
+  author: "MiguelGomez"
+  discord: ""
+  description: "A TinyTapeout-style 4-bit combination lock using a 4x4 matrix keypad instead of DIP switches."
+  language: "Verilog"
+  clock_hz: 40000000
+  tiles: "1x1"
+  top_module: "tt_um_combolock"
+  source_files:
+    - "tt_um_combolock.v"
+    - "keypad_scanner.v"
+
+  pinout:
+    # Inputs
+    ui[0]: "unused"
+    ui[1]: "unused"
+    ui[2]: "unused"
+    ui[3]: "unused"
+    ui[4]: "unused"
+    ui[5]: "unused"
+    ui[6]: "unused"
+    ui[7]: "unused"
+
+    # Outputs
+    uo[0]: "unlocked"
+    uo[1]: "locked_out"
+    uo[2]: "failed_attempts[0]"
+    uo[3]: "failed_attempts[1]"
+    uo[4]: "password_debug[0]"
+    uo[5]: "password_debug[1]"
+    uo[6]: "password_debug[2]"
+    uo[7]: "password_debug[3]"
+
+    # Bidirectional pins
+    uio[0]: "keypad_row_0"
+    uio[1]: "keypad_row_1"
+    uio[2]: "keypad_row_2"
+    uio[3]: "keypad_row_3"
+    uio[4]: "keypad_col_0"
+    uio[5]: "keypad_col_1"
+    uio[6]: "keypad_col_2"
+    uio[7]: "keypad_col_3"
+
+  yaml_version: 6  clock_hz:     40000000
 
   # How many tiles your design occupies? A single tile is about 167x108 uM.
   tiles: "1x1"          # Valid values: 1x1, 1x2, 2x2, 3x2, 4x2, 6x2 or 8x2
