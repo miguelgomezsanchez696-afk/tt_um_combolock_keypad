@@ -1,3 +1,4 @@
+# Tiny Tapeout project information
 project:
   title: "4-bit Combination Lock with 4x4 Matrix Keypad"
   author: "MiguelGomez"
@@ -12,6 +13,7 @@ project:
     - "keypad_scanner.v"
 
   pinout:
+    # Inputs
     ui[0]: "unused"
     ui[1]: "unused"
     ui[2]: "unused"
@@ -21,6 +23,7 @@ project:
     ui[6]: "unused"
     ui[7]: "unused"
 
+    # Outputs
     uo[0]: "unlocked"
     uo[1]: "locked_out"
     uo[2]: "failed_attempts[0]"
@@ -30,6 +33,7 @@ project:
     uo[6]: "password_debug[2]"
     uo[7]: "password_debug[3]"
 
+    # Bidirectional pins
     uio[0]: "keypad_row_0"
     uio[1]: "keypad_row_1"
     uio[2]: "keypad_row_2"
