@@ -18,7 +18,7 @@ To regenerate the simulation waveform locally:
 
 ```sh
 make sim
-gtkwave sim/tb_combolock.vcd
+gtkwave test/tb.fst
 ```
 
 Recommended waveform signals:
@@ -29,13 +29,14 @@ Recommended waveform signals:
 - `uio_out`
 - `uio_oe`
 - `uo_out`
-- `tb_combolock.dut.key_valid`
-- `tb_combolock.dut.key_code`
-- `tb_combolock.dut.key_star`
-- `tb_combolock.dut.key_hash`
-- `tb_combolock.dut.unlocked`
-- `tb_combolock.dut.locked_out`
-- `tb_combolock.dut.attempts`
+- `tb.user_project.key_valid`
+- `tb.user_project.key_code`
+- `tb.user_project.key_star`
+- `tb.user_project.key_hash`
+- `tb.user_project.unlocked`
+- `tb.user_project.locked_out`
+- `tb.user_project.attempts`
+- `tb.user_project.lockout_timer`
 
 To inspect the committed final layout manually, open:
 

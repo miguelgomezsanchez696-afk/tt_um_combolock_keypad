@@ -14,6 +14,13 @@ To learn more and get started, visit <https://tinytapeout.com>.
 
 This project implements a TinyTapeout 4-bit combination lock using a standard 4x4 matrix keypad instead of DIP switches. The top module is `tt_um_combolock`, with keypad scanning in `src/keypad_scanner.v` and lock/status logic in `src/tt_um_combolock.v`.
 
+Behavior summary:
+
+- Keys `0`-`9` and `A`-`D` load the current 4-bit code when the lock is not in lockout.
+- `*` stores the current code as the password when the lock is not in lockout.
+- `#` checks the current code against the stored password when the lock is not in lockout.
+- After three failed attempts, the lock enters a temporary lockout state. When the internal timer expires, attempts reset and the user can try again.
+
 Detailed design, pinout, test, and hardware instructions are in [docs/info.md](docs/info.md).
 
 ## Quick test

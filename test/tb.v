@@ -27,7 +27,13 @@ module tb ();
   wire VGND = 1'b0;
 `endif
 
+`ifdef GL_TEST
   tt_um_combolock user_project (
+`else
+  tt_um_combolock #(
+      .LOCKOUT_CYCLES(8)
+  ) user_project (
+`endif
 
       // Include power ports for the Gate Level test:
 `ifdef GL_TEST

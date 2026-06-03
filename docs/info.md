@@ -7,7 +7,7 @@ This project implements a 4-bit combination lock for TinyTapeout. It is based on
 The design is organized into three functional blocks:
 
 - `keypad_scanner`: scans the keypad matrix by driving one row at a time on `uio_out[3:0]` and reading the column inputs on `uio_in[7:4]`.
-- Lock logic: stores the current 4-bit password, accepts keypad code entries, checks the entered code, and counts failed attempts.
+- Lock logic: stores the current 4-bit password, accepts keypad code entries, checks the entered code, counts failed attempts, and runs a temporary lockout timer.
 - Output/status register: reports unlock, lockout, failed-attempt count, and password/debug bits on `uo_out[7:0]`.
 
 ![Block diagram](images/block_diagram.png)
@@ -25,9 +25,11 @@ The keypad rows are active-low scan outputs. The columns are active-low inputs, 
 | Row 2 | 7 | 8 | 9 | C |
 | Row 3 | * | 0 | # | D |
 
-Keys `0` through `9` and `A` through `D` load the current 4-bit code. The `*` key stores the current code as the password. The `#` key checks the current code against the stored password.
+During normal operation, keys `0` through `9` and `A` through `D` load the current 4-bit code. The `*` key stores the current code as the password. The `#` key checks the current code against the stored password.
 
-When the entered code matches the stored password, `uo_out[0]` is asserted as `unlocked`. A wrong code increments the failed-attempt counter on `uo_out[3:2]`. After three wrong attempts, `uo_out[1]` is asserted as `locked_out`.
+When the entered code matches the stored password, `uo_out[0]` is asserted as `unlocked`. A wrong code increments the failed-attempt counter on `uo_out[3:2]`. After three wrong attempts, `uo_out[1]` is asserted as `locked_out` and an internal temporary lockout timer is loaded.
+
+While temporary lockout is active, normal keypad lock updates are ignored. Code-entry keys do not change the entered code, the `*` key cannot change the password, and the `#` key cannot unlock the design or add more failed attempts. When the internal lockout timer expires, `locked_out` clears, failed attempts reset to 0, and `unlocked` remains 0 so the user can try entering the password again. Active-low reset clears the timer and lockout state immediately.
 
 The status output format is:
 
@@ -45,8 +47,8 @@ The following table summarizes the TinyTapeout interface used by this design.
 | TinyTapeout signal | Direction | Function |
 |---|---|---|
 | `clk` | input | System clock for keypad scanning and lock logic |
-| `rst_n` | input | Active-low reset; clears password, entered code, attempts, unlock, and lockout state |
-| `ena` | input | Design enable; lock state updates when asserted |
+| `rst_n` | input | Active-low reset; clears password, entered code, attempts, unlock, lockout state, and lockout timer |
+| `ena` | input | Design enable for normal keypad-driven lock updates |
 | `ui[7:0]` | input | Unused/reserved in this version |
 | `uo[7:0]` | output | Lock status: `unlocked`, `locked_out`, failed attempts, and password/debug bits |
 | `uio[7:0]` | bidirectional | 4x4 keypad interface: rows on `uio[3:0]`, columns on `uio[7:4]` |
@@ -73,7 +75,9 @@ The Cocotb test verifies:
 - Password storage using `*`
 - Password checking using `#`
 - Unlock behavior with the correct password
-- Lockout behavior after three wrong attempts
+- Temporary lockout behavior after three wrong attempts
+- Ignored password checks, ignored password changes, and unchanged attempt count during temporary lockout
+- Lockout timeout behavior, including failed-attempt reset and successful unlock after the timer expires
 
 Optional local visual inspection:
 

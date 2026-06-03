@@ -3,7 +3,7 @@ project:
   title: "4-bit Combination Lock with 4x4 Matrix Keypad"
   author: "MiguelGomez"
   discord: ""
-  description: "A TinyTapeout-style 4-bit combination lock using a 4x4 matrix keypad instead of DIP switches."
+  description: "A TinyTapeout-style 4-bit combination lock using a 4x4 matrix keypad, with temporary lockout after three failed attempts."
   language: "Verilog"
   clock_hz: 40000000
   tiles: "1x1"

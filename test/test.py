@@ -3,9 +3,11 @@
 
 import cocotb
 from cocotb.clock import Clock
+from cocotb.handle import Force, Release
 from cocotb.triggers import ClockCycles, FallingEdge
 
 
+SIM_LOCKOUT_CYCLES = 8
 UNPRESSED_UIO_IN = 0xF0
 ROW_PATTERNS = [0b1110, 0b1101, 0b1011, 0b0111]
 KEYS = {
@@ -77,6 +79,81 @@ async def press_key(dut, key):
     await release_key(dut)
 
 
+async def press_key_until(dut, key, predicate, timeout_cycles=16):
+    row, col, _ = KEYS[key]
+    saw_selected_row = False
+
+    for _ in range(timeout_cycles):
+        await FallingEdge(dut.clk)
+        if predicate():
+            dut.uio_in.value = UNPRESSED_UIO_IN
+            assert saw_selected_row, f"key {key} was never presented on its selected row"
+            return
+
+        cols = 0xF
+        if current_scan_row(dut) == row:
+            cols &= ~(1 << col)
+            saw_selected_row = True
+        dut.uio_in.value = cols << 4
+
+    raise AssertionError(f"key {key} did not reach the expected state")
+
+
+async def force_hash_check(dut, entered_code):
+    project = dut.user_project
+
+    project.entered_code.value = Force(entered_code)
+    project.keypad_scanner_i.key_valid.value = Force(1)
+    project.keypad_scanner_i.key_code.value = Force(0xF)
+    project.keypad_scanner_i.key_star.value = Force(0)
+    project.keypad_scanner_i.key_hash.value = Force(1)
+
+    try:
+        await ClockCycles(dut.clk, 1)
+        await FallingEdge(dut.clk)
+    finally:
+        project.entered_code.value = Release()
+        project.keypad_scanner_i.key_valid.value = Release()
+        project.keypad_scanner_i.key_code.value = Release()
+        project.keypad_scanner_i.key_star.value = Release()
+        project.keypad_scanner_i.key_hash.value = Release()
+        dut.uio_in.value = UNPRESSED_UIO_IN
+
+
+async def force_star_set(dut, entered_code):
+    project = dut.user_project
+
+    project.entered_code.value = Force(entered_code)
+    project.keypad_scanner_i.key_valid.value = Force(1)
+    project.keypad_scanner_i.key_code.value = Force(0xE)
+    project.keypad_scanner_i.key_star.value = Force(1)
+    project.keypad_scanner_i.key_hash.value = Force(0)
+
+    try:
+        await ClockCycles(dut.clk, 1)
+        await FallingEdge(dut.clk)
+    finally:
+        project.entered_code.value = Release()
+        project.keypad_scanner_i.key_valid.value = Release()
+        project.keypad_scanner_i.key_code.value = Release()
+        project.keypad_scanner_i.key_star.value = Release()
+        project.keypad_scanner_i.key_hash.value = Release()
+        dut.uio_in.value = UNPRESSED_UIO_IN
+
+
+async def wait_for_lockout_clear(dut, max_cycles=SIM_LOCKOUT_CYCLES + 4):
+    for _ in range(max_cycles):
+        if output_fields(dut)["locked_out"] == 0:
+            return
+        await ClockCycles(dut.clk, 1)
+
+    fields = output_fields(dut)
+    raise AssertionError(
+        f"lockout did not clear after timeout: locked_out={fields['locked_out']} "
+        f"attempts={fields['attempts']}"
+    )
+
+
 async def store_password(dut, key):
     await press_key(dut, key)
     await press_key(dut, "*")
@@ -136,17 +213,77 @@ async def test_combination_lock_keypad(dut):
     assert fields["unlocked"] == 1
     assert fields["locked_out"] == 0
 
-    for attempt, key in enumerate(["1", "2", "3"], start=1):
+    for attempt, key in enumerate(["1", "2"], start=1):
         await press_key(dut, key)
         await press_key(dut, "#")
         fields = output_fields(dut)
         assert fields["password"] == 0x5
         assert fields["attempts"] == attempt
         assert fields["unlocked"] == 0
-        assert fields["locked_out"] == (1 if attempt == 3 else 0)
+        assert fields["locked_out"] == 0
+
+    await press_key(dut, "3")
+    await press_key_until(dut, "#", lambda: output_fields(dut)["locked_out"] == 1)
+    fields = output_fields(dut)
+    assert fields["password"] == 0x5
+    assert fields["attempts"] == 3
+    assert fields["unlocked"] == 0
+    assert fields["locked_out"] == 1
+
+    await force_star_set(dut, 0xA)
+    fields = output_fields(dut)
+    assert fields["password"] == 0x5
+    assert fields["attempts"] == 3
+    assert fields["unlocked"] == 0
+    assert fields["locked_out"] == 1
+
+    await force_hash_check(dut, 0x5)
+    fields = output_fields(dut)
+    assert fields["password"] == 0x5
+    assert fields["attempts"] == 3
+    assert fields["unlocked"] == 0
+    assert fields["locked_out"] == 1
+
+    await force_hash_check(dut, 0x1)
+    fields = output_fields(dut)
+    assert fields["password"] == 0x5
+    assert fields["attempts"] == 3
+    assert fields["unlocked"] == 0
+    assert fields["locked_out"] == 1
+
+    await wait_for_lockout_clear(dut)
+    fields = output_fields(dut)
+    assert fields["password"] == 0x5
+    assert fields["attempts"] == 0
+    assert fields["unlocked"] == 0
+    assert fields["locked_out"] == 0
+
+    await press_key(dut, "5")
+    await press_key(dut, "#")
+    fields = output_fields(dut)
+    assert fields["password"] == 0x5
+    assert fields["attempts"] == 0
+    assert fields["unlocked"] == 1
+    assert fields["locked_out"] == 0
+
+    for key in ["1", "2"]:
+        await press_key(dut, key)
+        await press_key(dut, "#")
+
+    await press_key(dut, "3")
+    await press_key_until(dut, "#", lambda: output_fields(dut)["locked_out"] == 1)
 
     dut.rst_n.value = 0
     await ClockCycles(dut.clk, 2)
+    assert output_fields(dut) == {
+        "unlocked": 0,
+        "locked_out": 0,
+        "attempts": 0,
+        "password": 0,
+    }
+
+    dut.rst_n.value = 1
+    await ClockCycles(dut.clk, SIM_LOCKOUT_CYCLES + 2)
     assert output_fields(dut) == {
         "unlocked": 0,
         "locked_out": 0,
