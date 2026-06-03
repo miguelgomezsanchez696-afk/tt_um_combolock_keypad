@@ -1,0 +1,14 @@
+{
+  "DESIGN_NAME": "tt_um_combolock",
+  "VERILOG_FILES": [
+    "dir::src/tt_um_combolock.v",
+    "dir::src/keypad_scanner.v"
+  ],
+  "CLOCK_PORT": "clk",
+  "CLOCK_PERIOD": 25,
+  "IO_PIN_ORDER_CFG": "dir::pin_order.cfg",
+  "FP_SIZING": "absolute",
+  "DIE_AREA": "0 0 161 111",
+  "PL_TARGET_DENSITY": 0.6,
+  "RUN_HEURISTIC_DIODE_INSERTION": true
+}

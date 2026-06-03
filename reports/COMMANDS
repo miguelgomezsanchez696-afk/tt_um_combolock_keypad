@@ -1,0 +1,5 @@
+jq . config.json
+iverilog -g2012 -o sim/tb_combolock.vvp test/tb_combolock.v src/*.v
+vvp sim/tb_combolock.vvp
+librelane config.json
+PDK_ROOT=/tmp/librelane-pdks librelane config.json

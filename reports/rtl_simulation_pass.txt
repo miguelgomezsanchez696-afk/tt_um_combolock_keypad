@@ -1,0 +1,8 @@
+RTL simulation command:
+iverilog -g2012 -o sim/tb_combolock.vvp test/tb_combolock.v src/*.v
+vvp sim/tb_combolock.vvp
+
+Output:
+VCD info: dumpfile sim/tb_combolock.vcd opened for output.
+PASS
+test/tb_combolock.v:173: $finish called at 2470000 (1ps)

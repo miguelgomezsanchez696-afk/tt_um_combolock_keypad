@@ -1,0 +1,18 @@
+155: Check for Routing DRC errors clear.
+266: Check for Magic DRC errors clear.
+268: Check for KLayout DRC errors clear.
+276: Check for LVS errors clear.
+280: No setup violations found
+282: No hold violations found
+290: No max cap violations found
+293: Flow complete.
+
+Manufacturability report:
+* Antenna
+Passed
+
+* LVS
+Passed
+
+* DRC
+Passed
