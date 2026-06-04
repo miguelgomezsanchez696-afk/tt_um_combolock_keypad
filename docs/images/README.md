@@ -10,7 +10,7 @@ Generated documentation images:
 
 Captured tool screenshots:
 
-- `rtl_waveform_capture.png` is a GTKWave waveform screenshot from the RTL simulation VCD.
+- `rtl_waveform_capture.png` is a GTKWave waveform screenshot from the RTL simulation waveform.
 - `klayout_view.png` is a KLayout screenshot of the final layout.
 - `tinytapeout_3d_view.png` is a TinyTapeout GDS Viewer 3D screenshot of the final layout.
 

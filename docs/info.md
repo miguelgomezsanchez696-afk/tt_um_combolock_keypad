@@ -8,7 +8,7 @@ The design is organized into three functional blocks:
 
 - `keypad_scanner`: scans the keypad matrix by driving one row at a time on `uio_out[3:0]` and reading the column inputs on `uio_in[7:4]`.
 - Lock logic: stores the current 4-bit password, accepts keypad code entries, checks the entered code, counts failed attempts, and runs a temporary lockout timer.
-- Output/status register: drives an active-high 7-segment display on `uo_out[6:0]` and a decimal-point lockout indicator on `uo_out[7]`.
+- `seven_seg_decoder` output path: drives an active-high 7-segment display on `uo_out[6:0]` and a decimal-point lockout indicator on `uo_out[7]`.
 
 ![Block diagram](images/block_diagram.png)
 
