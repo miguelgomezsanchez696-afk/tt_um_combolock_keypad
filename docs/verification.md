@@ -21,3 +21,5 @@ The Cocotb test covers:
 - Lockout timeout clearing the decimal-point indicator
 - Successful password check after the timeout
 - Reset while locked out
+
+The expected temporary lockout behavior is that three failed `#` checks start lockout, further unlock attempts are ignored while the internal timer counts down, timeout clears lockout and resets attempts, and reset clears lockout immediately. The password remains stored in volatile flip-flops during lockout, but reset clears it according to the RTL. A future nonvolatile version could add EEPROM or FRAM storage.

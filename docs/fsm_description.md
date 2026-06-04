@@ -28,6 +28,6 @@ If the current code does not match the stored password, `unlocked` clears and th
 
 ## TEMP_LOCKOUT
 
-After the third wrong check, `locked_out` asserts, failed attempts report 3, and the internal lockout timer loads `LOCKOUT_CYCLES`. While this state is active, code-entry keys, `*`, and `#` are ignored, `unlocked` stays 0, and failed attempts do not keep incrementing.
+After the third wrong check, `locked_out` asserts, failed attempts report 3, and the internal lockout timer loads `LOCKOUT_CYCLES`. While this state is active, code-entry keys, `*`, and `#` are ignored, `unlocked` stays 0, and failed attempts do not keep incrementing. The stored password remains in volatile flip-flops during lockout.
 
-When the timer expires, `locked_out` clears, failed attempts reset to 0, and `unlocked` remains 0. The design then returns to normal code entry. Reset exits this state immediately and clears the timer.
+When the timer expires, `locked_out` clears, failed attempts reset to 0, and `unlocked` remains 0. The design then returns to normal code entry. Reset exits this state immediately, clears the timer, and clears the volatile password register. Future work could add EEPROM or FRAM storage for nonvolatile password retention.

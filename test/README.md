@@ -1,47 +1,41 @@
-# Sample testbench for a Tiny Tapeout project
+# Cocotb Testbench
 
-This is a sample testbench for a Tiny Tapeout project. It uses [cocotb](https://docs.cocotb.org/en/stable/) to drive the DUT and check the outputs.
-See below to get started or for more information, check the [website](https://tinytapeout.com/hdl/testing/).
+This testbench uses [cocotb](https://docs.cocotb.org/en/stable/) to verify `tt_um_combolock` with the active RTL source list in [Makefile](Makefile).
 
-## Setting up
+## What it covers
 
-1. Edit [Makefile](Makefile) and modify `PROJECT_SOURCES` to point to your Verilog files.
-2. Edit [tb.v](tb.v) and instantiate your top-level module.
+- Reset behavior and fixed `uio_oe = 8'b0000_1111`
+- 4x4 keypad row scanning and key mapping
+- Password storage with `*` and password checking with `#`
+- Active-high 7-segment output patterns on `uo_out[6:0]`
+- Decimal-point lockout indication on `uo_out[7]`
+- Temporary lockout after three wrong attempts, ignored inputs during lockout, timeout recovery, and reset while locked out
 
 ## How to run
 
-To run the RTL simulation:
+From the repository root:
 
 ```sh
-make -B
+make -C test
 ```
 
-To run gatelevel simulation, first harden your project and copy `../runs/wokwi/results/final/verilog/gl/{your_module_name}.v` to `gate_level_netlist.v`.
-
-Then run:
+From this directory:
 
 ```sh
-make -B GATES=yes
+make
 ```
 
-If you wish to save the waveform in VCD format instead of FST format, edit tb.v to use `$dumpfile("tb.vcd");` and then run:
+To run a gate-level simulation, copy a generated `tt_um_combolock` gate-level netlist to `gate_level_netlist.v` and run:
 
 ```sh
-make -B FST=
+make GATES=yes
 ```
 
-This will generate `tb.vcd` instead of `tb.fst`.
+The RTL testbench writes `tb.fst` by default.
 
 ## How to view the waveform file
 
-Using GTKWave
-
 ```sh
 gtkwave tb.fst tb.gtkw
-```
-
-Using Surfer
-
-```sh
 surfer tb.fst
 ```

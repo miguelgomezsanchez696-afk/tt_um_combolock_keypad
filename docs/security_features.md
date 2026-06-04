@@ -14,7 +14,7 @@ Each wrong `#` check increments the failed-attempt counter. After the third wron
 
 ## Temporary lockout timer
 
-Lockout is temporary. While `locked_out` is active, code entry, password checks, and password changes are ignored, `unlocked` is held low, and failed attempts do not keep incrementing. An internal lockout timer counts clock cycles. When the timer expires, `locked_out` clears and failed attempts reset to 0.
+Lockout is temporary. While `locked_out` is active, code entry, password checks, and password changes are ignored, `unlocked` is held low, and failed attempts do not keep incrementing. The stored password remains in volatile flip-flops during this temporary lockout. An internal lockout timer counts down for a fixed number of clock cycles. When the timer expires, `locked_out` clears and failed attempts reset to 0.
 
 The default RTL parameter is `LOCKOUT_CYCLES=1024`. The Cocotb testbench uses the synthesized default instead of an RTL-only parameter override so RTL and gate-level simulations exercise the same timeout.
 
