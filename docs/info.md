@@ -12,7 +12,7 @@ The design is organized into three functional blocks:
 
 ![Block diagram](images/block_diagram.png)
 
-The keypad rows are active-low scan outputs. The columns are active-low inputs, so an unpressed keypad presents all column inputs high. The bidirectional output enable is fixed to `uio_oe = 8'b0000_1111`, making `uio[3:0]` outputs and `uio[7:4]` inputs.
+The keypad rows are active-low scan outputs. The columns are active-low inputs, so an unpressed keypad presents all column inputs high. The bidirectional output enable is fixed to `uio_oe = 8'b0000_1111`, making `uio[3:0]` outputs and `uio[7:4]` inputs. At the top level, `uio_out[3:0]` carries the row scan pattern, `uio_out[7:4]` is driven as 0 on the disabled output path, `uio_in[7:4]` carries the column inputs, and `uio_in[3:0]` is unused.
 
 ![Keypad mapping](images/keypad_mapping.png)
 
@@ -29,7 +29,9 @@ During normal operation, keys `0` through `9` and `A` through `D` load the curre
 
 When the entered code matches the stored password, the lock enters its internal unlocked state. A wrong code increments the internal failed-attempt counter. After three wrong attempts, temporary lockout asserts, `uo_out[7]` lights the decimal point, and an internal temporary lockout timer is loaded.
 
-While temporary lockout is active, normal keypad lock updates are ignored. Code-entry keys do not change the entered code, the `*` key cannot change the password, and the `#` key cannot unlock the design or add more failed attempts. When the internal lockout timer expires, `locked_out` clears, failed attempts reset to 0, and `unlocked` remains 0 so the user can try entering the password again. Active-low reset clears the timer and lockout state immediately.
+While temporary lockout is active, normal keypad lock updates are ignored. Code-entry keys do not change the entered code, the `*` key cannot change the password, and the `#` key cannot unlock the design or add more failed attempts. The internal timer counts down from the fixed `LOCKOUT_CYCLES` value. When the timer expires, `locked_out` clears, failed attempts reset to 0, and `unlocked` remains 0 so the user can try entering the password again. Active-low reset clears the timer and lockout state immediately.
+
+The stored password remains in volatile flip-flops during temporary lockout. Reset clears the password to 0 along with the entered code, failed attempts, unlock state, lockout state, and timer. Future work could add EEPROM or FRAM password storage if nonvolatile password retention is required.
 
 The display output format is:
 
@@ -78,7 +80,7 @@ The Cocotb test verifies:
 - Decimal-point lockout indication on `uo_out[7]`
 - Temporary lockout behavior after three wrong attempts
 - Ignored keypad updates during temporary lockout
-- Lockout timeout behavior and a successful password check after the timer expires
+- Lockout timeout recovery and a successful password check after the timer expires
 
 Optional local visual inspection:
 
@@ -105,3 +107,16 @@ This design is intended to be used with a standard 4x4 matrix keypad. The ASIC d
 | Column 3 | `uio[7]` |
 
 The dedicated `ui_in[7:0]` inputs are unused/reserved in this version.
+
+The 7-segment display outputs are active-high. Use suitable current-limiting resistors or an external display driver as required by the display hardware.
+
+| Display signal | TinyTapeout signal | Notes |
+|---|---|---|
+| Segment a | `uo[0]` | active-high |
+| Segment b | `uo[1]` | active-high |
+| Segment c | `uo[2]` | active-high |
+| Segment d | `uo[3]` | active-high |
+| Segment e | `uo[4]` | active-high |
+| Segment f | `uo[5]` | active-high |
+| Segment g | `uo[6]` | active-high |
+| Decimal point | `uo[7]` | high during temporary lockout |
